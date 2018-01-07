@@ -1,0 +1,8 @@
+/Users/jarroda/Projects/raytrace/src/Tracer/bin/Debug/netstandard2.0/Tracer.deps.json
+/Users/jarroda/Projects/raytrace/src/Tracer/bin/Debug/netstandard2.0/Tracer.dll
+/Users/jarroda/Projects/raytrace/src/Tracer/bin/Debug/netstandard2.0/Tracer.pdb
+/Users/jarroda/Projects/raytrace/src/Tracer/obj/Debug/netstandard2.0/Tracer.csproj.CoreCompileInputs.cache
+/Users/jarroda/Projects/raytrace/src/Tracer/obj/Debug/netstandard2.0/Tracer.AssemblyInfoInputs.cache
+/Users/jarroda/Projects/raytrace/src/Tracer/obj/Debug/netstandard2.0/Tracer.AssemblyInfo.cs
+/Users/jarroda/Projects/raytrace/src/Tracer/obj/Debug/netstandard2.0/Tracer.dll
+/Users/jarroda/Projects/raytrace/src/Tracer/obj/Debug/netstandard2.0/Tracer.pdb
