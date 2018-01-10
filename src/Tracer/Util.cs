@@ -26,6 +26,8 @@ namespace Tracer
                 (m.M31 * v.X) + (m.M32 * v.Y) + (m.M33 * v.Z) + m.M34);
         }
 
+        
+
         public static double[] SolveQuadraticPositive(double a, double b, double c)
         {
             var nz = nearlyZero;
