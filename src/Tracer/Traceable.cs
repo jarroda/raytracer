@@ -21,5 +21,7 @@ namespace Tracer
         }
 
         public abstract float[] Intersections(Ray ray);
+        public abstract Vector3 GetNormalAt(Vector3 p);
+        public abstract Vector3 GetBaseColorAt(Vector3 p);
     }
 }

@@ -7,6 +7,7 @@
   
   <ItemGroup>
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0002" />
+    <PackageReference Include="MathNet.Numerics" Version="4.0.0-beta02" />
   </ItemGroup>
 
 </Project>
