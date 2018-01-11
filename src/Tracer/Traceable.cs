@@ -1,27 +1,29 @@
-using System.Numerics;
+using MathNet.Numerics.LinearAlgebra;
 
 namespace Tracer
 {    
     public abstract class Traceable
     {
-        //private MatrixPair _model = new MatrixPair();
+        public MatrixPair Model { get; private set; } = new MatrixPair();
         public string Name { get; set; }
-        public Vector3 BaseColor { get; set; } = new Vector3(1, 1, 1);
-        public Vector3 SpecularColor { get; set; } = new Vector3(1, 1, 1);
-        public float SpectularExponent { get; set; } = 0;
+        public Vector<double> BaseColor { get; set; } 
+            = Vector<double>.Build.DenseOfArray(new double[] { 1, 1, 1 });
+        public Vector<double> SpecularColor { get; set; } 
+            = Vector<double>.Build.DenseOfArray(new double[] { 1, 1, 1 });
+        public double SpectularExponent { get; set; } = 0;
 
         public Ray GetLocalRay(Ray ray)
         {
             var worldOrigin = ray.Origin;
             var worldPoint = ray.PointAt(1);
-            var localOrigin = Vector3.Transform(worldOrigin, Matrix4x4.Identity);
-            var localPoint = Vector3.Transform(worldPoint, Matrix4x4.Identity);
+            var localOrigin = Model.Inverse.Image(worldOrigin);
+            var localPoint = Model.Inverse.Image(worldPoint);
             
             return new Ray(localOrigin, localPoint);
         }
 
-        public abstract float[] Intersections(Ray ray);
-        public abstract Vector3 GetNormalAt(Vector3 p);
-        public abstract Vector3 GetBaseColorAt(Vector3 p);
+        public abstract double[] Intersections(Ray ray);
+        public abstract Vector<double> GetNormalAt(Vector<double> p);
+        public abstract Vector<double> GetBaseColorAt(Vector<double> p);
     }
 }

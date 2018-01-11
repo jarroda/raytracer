@@ -1,40 +1,32 @@
 using System.Linq;
-using System.Numerics;
+using MathNet.Numerics.LinearAlgebra;
 
 namespace Tracer
 {
     public class Sphere : Traceable
     {
         public Sphere() { }
-        public Sphere(Vector3 baseColor, Vector3 specular, float exponent)
+        public Sphere(Vector<double> baseColor, Vector<double> specular, double exponent)
         {
             BaseColor = baseColor;
             SpecularColor = specular;
             SpectularExponent = exponent;
         }
 
-        public override float[] Intersections(Ray ray)
-            => IntersectionsD(ray).Cast<float>().ToArray();
-            
-        public double[] IntersectionsD(Ray ray)
+        public override double[] Intersections(Ray ray)
         {
             var localRay = GetLocalRay(ray);
 
             return Util.SolveQuadraticPositive(
-                localRay.Direction.LengthSquared(),
-                2 * Vector3.Dot(localRay.Origin, localRay.Direction),
-                localRay.Origin.LengthSquared() - 1
+                localRay.Direction.MagnitudeSquared(),
+                2 * localRay.Origin.DotProduct(localRay.Direction),
+                localRay.Origin.MagnitudeSquared() - 1
             );
         }
 
-        public override Vector3 GetNormalAt(Vector3 p)
-        {
-            return Vector3.Zero;
-        }
+        public override Vector<double> GetNormalAt(Vector<double> p)
+            => Model.TransformNormal(Model.InverseImage(p));
 
-        public override Vector3 GetBaseColorAt(Vector3 p)
-        {
-            return BaseColor;
-        }
+        public override Vector<double> GetBaseColorAt(Vector<double> p) => BaseColor;
     }
 }
