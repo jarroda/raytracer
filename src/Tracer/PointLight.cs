@@ -3,10 +3,10 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace Tracer
 {    
-    public class PointLight
+    public class PointLight : Light
     {
         public Vector<double> Location { get; set; }
-        public Vector<double> GetLightVector(Vector<double> point)
+        public override Vector<double> GetLightVector(Vector<double> point)
         {
             if (point == null)
             {

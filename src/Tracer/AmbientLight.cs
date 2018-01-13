@@ -4,7 +4,7 @@ namespace Tracer
 {    
     public abstract class AmbientLight
     {
-        public Vector<double> Color { get; protected set; }
-            = Vector<double>.Build.DenseOfArray(new double[] { 0, 0, 0});
+        public static Vector<double> Color { get; set; }
+            = Vector.CreateVector3(0, 0, 0);
     }
 }

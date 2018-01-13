@@ -14,6 +14,26 @@ namespace Tracer
             => Matrix<double>.Build.DenseIdentity(4, 4);
 
         /// <summary>
+        /// Returns the translation matrix for translating by tx units in the
+        /// x-direction, ty units in the y-direction, and tz units in the
+        /// z-direction.
+        /// </summary>
+        /// <param name="tx">Amount to translate in the x-direction</param>
+        /// <param name="ty">Amount to translate in the y-direction</param>
+        /// <param name="tz">Amount to translate in the z-direction</param>
+        /// <returns>The translation matrix</returns>
+        public static Matrix<double> CreateTranslation(double tx, double ty, double tz)
+        {
+            var m = Create();
+
+            m[0,3] = tx;
+            m[1,3] = ty;
+            m[2,3] = tz;
+
+            return m;
+        }
+
+        /// <summary>
         /// Returns a shearing matrix which causes a shearing by a factor of a
         /// in the y-direction and b in the z-direction (and leaves x coordinates
         /// unchanged). This maps the line

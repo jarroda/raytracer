@@ -6,8 +6,8 @@ namespace Tracer
 {    
     public static class Util
     {
-        public static double nearlyZero = 0.5E-10;
-        public static double nearlyInfinite = 0.5E10;
+        public const double NearlyZero = 0.5E-10;
+        public const double NearlyInfinite = 0.5E10;
         
         public static void DumpEx(this Matrix4x4 m)
         {
@@ -30,13 +30,13 @@ namespace Tracer
 
         public static double[] SolveQuadraticPositive(double a, double b, double c)
         {
-            var nz = nearlyZero;
-            var ni = nearlyInfinite;
+            var nz = NearlyZero;
+            var ni = NearlyInfinite;
             // Linear case
-            if (Math.Abs(a) < nearlyZero)
+            if (Math.Abs(a) < NearlyZero)
             {
                 // No solutions
-                if (Math.Abs(b) < nearlyZero)
+                if (Math.Abs(b) < NearlyZero)
                 {
                     return new double[0];
                 }
@@ -58,7 +58,7 @@ namespace Tracer
                 {
                     return new double[0];
                 }
-                else if (d < nearlyZero)
+                else if (d < NearlyZero)
                 {
                     // One double root
                     var x1 = -b / (2 * a);
