@@ -16,8 +16,6 @@ void Main()
 	//var w = new RectangleF(-2.0f, 1.5f, 4.0f, 3.0f);
 	var w = new RectangleF(-2.0f, 2.0f, 4.0f, 4.0f);
 	
-	var v2w = new AffineTransform(w, v);
-	
 	double viewDistance = 5;
 	var eye = Vector.CreateVector3(0, 0, 5);
 	var center = Vector.CreateVector3(0, 0, 0);
@@ -74,6 +72,19 @@ class AffineTransform : IViewPortToWindowTransform
 		_m.TransformPoints(points);
 		return points[0];
 	}
+}
+
+public class Scene
+{
+	public SizeF Viewport { get; set; }
+	public RectangleF Window { get; set; }
+	public double ViewingDistance { get; set; }
+	public Vector<double> Eye { get; set; }
+	public Vector<double> Center { get; set; } = Vector.CreateVector3(0, 0, 0);
+	public Vector<double> Up { get; set; } = Vector.CreateVector3(0, 1, 0);
+	public Vector<double> AmbientLight { get; set; }
+	public List<Light> Lights { get; set; }
+	public List<Traceable> Objects { get; set; }
 }
 
 public static class Util2

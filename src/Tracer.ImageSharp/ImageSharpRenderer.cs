@@ -11,7 +11,9 @@ namespace Tracer.ImageSharp
 
     public static class ImageSharpRenderer
     {
-        public static void RenderTo(this Image<Rgba32> image, IViewPortToWindowTransform v2w, double viewDistance, Matrix<double> viewing, Vector<double> eye, IEnumerable<Traceable> objects, IEnumerable<Light> lights)
+       
+
+        public static void RenderTo(this Image<Rgba32> image, IViewportToWindowTransform v2w, double viewDistance, Matrix<double> viewing, Vector<double> eye, IEnumerable<Traceable> objects, IEnumerable<Light> lights)
         {
             Ray ray;
             Vector<double> viewingPoint;

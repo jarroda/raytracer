@@ -2,7 +2,7 @@ using System.Drawing;
 
 namespace Tracer
 {
-    public interface IViewPortToWindowTransform
+    public interface IViewportToWindowTransform
     {
         PointF Transform(PointF viewportPoint);
     }
