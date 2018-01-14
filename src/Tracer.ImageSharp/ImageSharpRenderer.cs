@@ -15,7 +15,8 @@ namespace Tracer.ImageSharp
         {
             Ray ray;
             Vector<double> viewingPoint;
-            Vector<double> worldPoint;	
+            Vector<double> worldPoint;
+            Vector<double> color;
             PointF viewportPoint;
             PointF windowPoint = new PointF(0, 0);
 
@@ -27,90 +28,9 @@ namespace Tracer.ImageSharp
                     viewingPoint = Vector.CreateVector3(windowPoint.X, windowPoint.Y, viewDistance);
                     worldPoint = viewing.Image(viewingPoint);
                     ray = new Ray(eye, worldPoint);
-                    image[x,y] = ray.Trace(objects, lights, eye);
+                    color = ray.Trace(objects, lights, eye);
+                    image[x,y] = color == null ? Rgba32.Black : new Rgba32((float)color[0], (float)color[1], (float)color[2]);
                 }
-        }
-
-        public static Rgba32 Trace(this Ray ray, IEnumerable<Traceable> objects, IEnumerable<Light> lights, Vector<double> eye)
-        {
-            if (objects == null)
-            {
-                throw new ArgumentNullException(nameof(objects));
-            }
-            if (lights == null)
-            {
-                throw new ArgumentNullException(nameof(lights));
-            }
-            if (eye == null)
-            {
-                throw new ArgumentNullException(nameof(eye));
-            }
-
-            double hit;
-            double[] hits;
-            var nearestHit = Util.NearlyInfinite;
-            Traceable nearestObject = null;
-
-            foreach (var t in objects)
-            {
-                hits = t.Intersections(ray);
-
-                if (hits.Any())
-                {
-                    hit = hits.First();
-                    if (hit < nearestHit)
-                    {
-                        nearestHit = hit;
-                        nearestObject = t;
-                    }
-                }
-            }
-
-            if (nearestObject == null)
-            {
-                return Rgba32.Black;
-            }
-            else
-            {
-                var normal = nearestObject.GetNormalAt(ray.PointAt(nearestHit));
-                var baseColor = nearestObject.GetBaseColorAt(ray.PointAt(nearestHit));
-                var color = baseColor.TermMultiple(AmbientLight.Color);
-                
-                Vector<double> lightVector,	
-                    diffuseContribution, 
-                    specularContribution,
-                    viewingVector,
-                    halfVector;
-                double lDotN, hDotN;
-                
-                foreach (var l in lights)
-                {
-                    lightVector = l.GetLightVector(ray.PointAt(nearestHit));
-                    lDotN = lightVector.DotProduct(normal);	
-                    
-                    if (lDotN > 0)
-                    {
-                        // Diffuse light contribution
-                        diffuseContribution = baseColor.TermMultiple(l.Color).ScalarMultiple(lDotN);
-                        color = color.Add(diffuseContribution);
-                        
-                        // Specular light contribution
-                        viewingVector = eye.Subtract(nearestObject.Model.Origin.Image(ray.PointAt(nearestHit))).Normalize();
-                        halfVector = viewingVector.Add(lightVector).Normalize();
-                        hDotN = halfVector.DotProduct(normal);
-                        
-                        if (hDotN > 0)
-                        {
-                            specularContribution = nearestObject.SpecularColor.TermMultiple(l.Color)
-                                .ScalarMultiple(Math.Pow(hDotN, nearestObject.SpectularExponent));
-                            color = color.Add(specularContribution);
-                        }
-                    }
-                }
-                
-                color.Clamp();
-                return new Rgba32((float)color[0], (float)color[1], (float)color[2]);
-            }
         }
     }
 }

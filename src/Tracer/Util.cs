@@ -20,14 +20,43 @@ namespace Tracer
         //     Console.WriteLine($"{m.M41}\t{m.M42}\t{m.M43}\t{m.M44}");
         //     Console.WriteLine();
         // }
-        public static Color TraceARay(Ray ray, IEnumerable<Traceable> traceables, IEnumerable<Light> lights, Vector<double> eye)
+        
+        public static Color TraceARay(Ray ray, IEnumerable<Traceable> objects, IEnumerable<Light> lights, Vector<double> eye)
         {
+            var color = ray.Trace(objects, lights, eye);
+            return color == null ? Color.Black :
+                Color.FromArgb(color[0].ToRGB(), color[1].ToRGB(), color[2].ToRGB());
+        }
+
+        /// <summary>
+        /// Trace a ray and return the RGB color vector.
+        /// </summary>
+        /// <param name="ray">The current ray being traced.</param>
+        /// <param name="objects">The collection of tracable objects.</param>
+        /// <param name="lights">The collection of lights</param>
+        /// <param name="eye">The eye vector</param>
+        /// <returns>The RGB color vector3 if the ray hits an object, otherwise null.</returns>
+        public static Vector<double> Trace(this Ray ray, IEnumerable<Traceable> objects, IEnumerable<Light> lights, Vector<double> eye)
+        {
+            if (objects == null)
+            {
+                throw new ArgumentNullException(nameof(objects));
+            }
+            if (lights == null)
+            {
+                throw new ArgumentNullException(nameof(lights));
+            }
+            if (eye == null)
+            {
+                throw new ArgumentNullException(nameof(eye));
+            }
+
             double hit;
             double[] hits;
-            var nearestHit = NearlyInfinite;
+            var nearestHit = Util.NearlyInfinite;
             Traceable nearestObject = null;
 
-            foreach (var t in traceables)
+            foreach (var t in objects)
             {
                 hits = t.Intersections(ray);
 
@@ -44,7 +73,7 @@ namespace Tracer
 
             if (nearestObject == null)
             {
-                return Color.Black;
+                return null;
             }
             else
             {
@@ -85,7 +114,7 @@ namespace Tracer
                 }
                 
                 color.Clamp();
-                return Color.FromArgb(color[0].ToRGB(), color[1].ToRGB(), color[2].ToRGB());
+                return color;
             }
         }
 
