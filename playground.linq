@@ -15,6 +15,7 @@ void Main()
 	var v = new RectangleF(0, 0, 500, 500);
 	//var w = new RectangleF(-2.0f, 1.5f, 4.0f, 3.0f);
 	var w = new RectangleF(-2.0f, 2.0f, 4.0f, 4.0f);
+	var v2w = new ViewportToWindowTransform(w, v);
 	
 	double viewDistance = 5;
 	var eye = Vector.CreateVector3(0, 0, 5);
@@ -54,7 +55,7 @@ void Main()
 	}
 }
 
-class AffineTransform : IViewPortToWindowTransform
+class AffineTransform : IViewportToWindowTransform
 {
 	private System.Drawing.Drawing2D.Matrix _m;
 	
