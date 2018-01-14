@@ -36,13 +36,14 @@ void Main()
 	{
 		Name = "Yellow Sphere",
 	};
-	sphere1.Model.Translate(-0.75, 0, 0);
+	sphere1.Model.Translate(-0.75, 0, 0);	
 	var sphere2 = new Sphere(Vector.CreateVector3(0.8, 0, 0), Vector.CreateVector3(1, 1, 1), 150)
 	{
 		Name = "Red Sphere",
 	};
-	sphere1.Model.Translate(0.75, 0, 0);
-	var objects = new[] { /*sphere1,*/ sphere2 };
+	sphere2.Model.Translate(0.75, 0, 0);	
+
+	var objects = new[] { sphere1, sphere2 };
 	
 	// Background color
 	var background = Color.Blue;
@@ -185,7 +186,6 @@ public static class Util2
 		}
 		else
 		{
-			//return Color.FromArgb(nearestObject.BaseColor[0].ToRGB(), nearestObject.BaseColor[1].ToRGB(), nearestObject.BaseColor[2].ToRGB());
 			var normal = nearestObject.GetNormalAt(ray.PointAt(nearestHit));
 			var baseColor = nearestObject.GetBaseColorAt(ray.PointAt(nearestHit));
 			var color = baseColor.TermMultiple(AmbientLight.Color);
