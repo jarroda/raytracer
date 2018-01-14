@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using System.Numerics;
+using MathNet.Numerics.LinearAlgebra;
 
 namespace Tracer
 {    
@@ -9,24 +12,85 @@ namespace Tracer
         public const double NearlyZero = 0.5E-10;
         public const double NearlyInfinite = 0.5E10;
         
-        public static void DumpEx(this Matrix4x4 m)
+        // public static void DumpEx(this Matrix4x4 m)
+        // {
+        //     Console.WriteLine($"{m.M11}\t{m.M12}\t{m.M13}\t{m.M14}");
+        //     Console.WriteLine($"{m.M21}\t{m.M22}\t{m.M23}\t{m.M24}");
+        //     Console.WriteLine($"{m.M31}\t{m.M32}\t{m.M33}\t{m.M34}");
+        //     Console.WriteLine($"{m.M41}\t{m.M42}\t{m.M43}\t{m.M44}");
+        //     Console.WriteLine();
+        // }
+        public static Color TraceARay(Ray ray, IEnumerable<Traceable> traceables, IEnumerable<Light> lights, Vector<double> eye)
         {
-            Console.WriteLine($"{m.M11}\t{m.M12}\t{m.M13}\t{m.M14}");
-            Console.WriteLine($"{m.M21}\t{m.M22}\t{m.M23}\t{m.M24}");
-            Console.WriteLine($"{m.M31}\t{m.M32}\t{m.M33}\t{m.M34}");
-            Console.WriteLine($"{m.M41}\t{m.M42}\t{m.M43}\t{m.M44}");
-            Console.WriteLine();
-        }
-        
-        public static Vector3 Image(this Matrix4x4 m, Vector3 v)
-        {
-            return new Vector3(
-                (m.M11 * v.X) + (m.M12 * v.Y) + (m.M13 * v.Z) + m.M14,
-                (m.M21 * v.X) + (m.M22 * v.Y) + (m.M23 * v.Z) + m.M24,
-                (m.M31 * v.X) + (m.M32 * v.Y) + (m.M33 * v.Z) + m.M34);
+            double hit;
+            double[] hits;
+            var nearestHit = NearlyInfinite;
+            Traceable nearestObject = null;
+
+            foreach (var t in traceables)
+            {
+                hits = t.Intersections(ray);
+
+                if (hits.Any())
+                {
+                    hit = hits.First();
+                    if (hit < nearestHit)
+                    {
+                        nearestHit = hit;
+                        nearestObject = t;
+                    }
+                }
+            }
+
+            if (nearestObject == null)
+            {
+                return Color.Black;
+            }
+            else
+            {
+                var normal = nearestObject.GetNormalAt(ray.PointAt(nearestHit));
+                var baseColor = nearestObject.GetBaseColorAt(ray.PointAt(nearestHit));
+                var color = baseColor.TermMultiple(AmbientLight.Color);
+                
+                Vector<double> lightVector,	
+                    diffuseContribution, 
+                    specularContribution,
+                    viewingVector,
+                    halfVector;
+                double lDotN, hDotN;
+                
+                foreach (var l in lights)
+                {
+                    lightVector = l.GetLightVector(ray.PointAt(nearestHit));
+                    lDotN = lightVector.DotProduct(normal);	
+                    
+                    if (lDotN > 0)
+                    {
+                        // Diffuse light contribution
+                        diffuseContribution = baseColor.TermMultiple(l.Color).ScalarMultiple(lDotN);
+                        color = color.Add(diffuseContribution);
+                        
+                        // Specular light contribution
+                        viewingVector = eye.Subtract(nearestObject.Model.Origin.Image(ray.PointAt(nearestHit))).Normalize();
+                        halfVector = viewingVector.Add(lightVector).Normalize();
+                        hDotN = halfVector.DotProduct(normal);
+                        
+                        if (hDotN > 0)
+                        {
+                            specularContribution = nearestObject.SpecularColor.TermMultiple(l.Color)
+                                .ScalarMultiple(Math.Pow(hDotN, nearestObject.SpectularExponent));
+                            color = color.Add(specularContribution);
+                        }
+                    }
+                }
+                
+                color.Clamp();
+                return Color.FromArgb(color[0].ToRGB(), color[1].ToRGB(), color[2].ToRGB());
+            }
         }
 
-        
+        public static int ToRGB(this double val)
+            => (int)Math.Floor(val >= 1 ? 255 : val * 256.0);
 
         public static double[] SolveQuadraticPositive(double a, double b, double c)
         {
