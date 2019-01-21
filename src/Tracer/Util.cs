@@ -51,7 +51,7 @@ namespace Tracer
             }
 
             double hit;
-            double[] hits;
+            float[] hits;
             var nearestHit = Util.NearlyInfinite;
             Traceable nearestObject = null;
 
@@ -78,7 +78,7 @@ namespace Tracer
             {
                 var normal = nearestObject.GetNormalAt(ray.PointAt((float)nearestHit).ToVector());
                 var baseColor = nearestObject.GetBaseColorAt(ray.PointAt((float)nearestHit).ToVector());
-                var color = baseColor.TermMultiple(ambientLight.ToVector());
+                var color = baseColor.ToVector().TermMultiple(ambientLight.ToVector());
                 
                 Vector<double> lightVector,	
                     diffuseContribution, 
@@ -95,7 +95,7 @@ namespace Tracer
                     if (lDotN > 0)
                     {
                         // Diffuse light contribution
-                        diffuseContribution = baseColor.TermMultiple(l.Color.ToVector()).ScalarMultiple(lDotN);
+                        diffuseContribution = baseColor.ToVector().TermMultiple(l.Color.ToVector()).ScalarMultiple(lDotN);
                         color = color.Add(diffuseContribution);
                         
                         // Specular light contribution
@@ -105,8 +105,8 @@ namespace Tracer
                         
                         if (hDotN > 0)
                         {
-                            specularContribution = nearestObject.SpecularColor.TermMultiple(l.Color.ToVector())
-                                .ScalarMultiple(Math.Pow(hDotN, nearestObject.SpectularExponent));
+                            specularContribution = nearestObject.SpecularColor.ToVector().TermMultiple(l.Color.ToVector())
+                                .ScalarMultiple(Math.Pow(hDotN, nearestObject.SpecularExponent));
                             color = color.Add(specularContribution);
                         }
                     }
@@ -141,17 +141,15 @@ namespace Tracer
                 (double)color.B / 256
             );
 
-        public static double[] SolveQuadraticPositive(double a, double b, double c)
+        public static float[] SolveQuadraticPositive(float a, float b, float c)
         {
-            // var nz = NearlyZero;
-            // var ni = NearlyInfinite;
             // Linear case
             if (Math.Abs(a) < NearlyZero)
             {
                 // No solutions
                 if (Math.Abs(b) < NearlyZero)
                 {
-                    return new double[0];
+                    return new float[0];
                 }
                 // One linear solution
                 else
@@ -169,7 +167,7 @@ namespace Tracer
                 // Solutions are complex
                 if (d < 0)
                 {
-                    return new double[0];
+                    return new float[0];
                 }
                 else if (d < NearlyZero)
                 {
@@ -180,7 +178,7 @@ namespace Tracer
                 else
                 {
                     // Two real roots
-                    d = Math.Sqrt(d);
+                    d = (float)Math.Sqrt(d);
                     var x1 = (-b + d) / (2 * a);
                     var x2 = (-b - d) / (2 * a);
                     if (x1 > x2)
