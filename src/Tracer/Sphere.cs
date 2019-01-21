@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.Linq;
 using MathNet.Numerics.LinearAlgebra;
 
@@ -6,10 +7,10 @@ namespace Tracer
     public class Sphere : Traceable
     {
         public Sphere() { }
-        public Sphere(Vector<double> baseColor, Vector<double> specular, double exponent)
+        public Sphere(Color baseColor, Color specular, double exponent)
         {
-            BaseColor = baseColor;
-            SpecularColor = specular;
+            BaseColor = baseColor.ToVector();
+            SpecularColor = specular.ToVector();
             SpectularExponent = exponent;
         }
 

@@ -20,6 +20,13 @@ namespace Tracer
         //     Console.WriteLine($"{m.M41}\t{m.M42}\t{m.M43}\t{m.M44}");
         //     Console.WriteLine();
         // }
+
+        public static Vector<double> ToVector(this Color color)
+            => Vector.CreateVector3(
+                (double)color.R / 256,
+                (double)color.G / 256,
+                (double)color.B / 256
+            );
         
         public static Color TraceARay(Ray ray, IEnumerable<Traceable> objects, IEnumerable<Light> lights, Vector<double> eye)
         {
@@ -123,8 +130,8 @@ namespace Tracer
 
         public static double[] SolveQuadraticPositive(double a, double b, double c)
         {
-            var nz = NearlyZero;
-            var ni = NearlyInfinite;
+            // var nz = NearlyZero;
+            // var ni = NearlyInfinite;
             // Linear case
             if (Math.Abs(a) < NearlyZero)
             {

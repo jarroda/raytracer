@@ -1,24 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using Tracer.ImageSharp;
 
-namespace Tracer.Console
+namespace Tracer
 {
     class Program
     {
         static void Main(string[] args)
         {
             AmbientLight.Color = Vector.CreateVector3(0.2, 0.2, 0.2);
+            // AmbientLight.Color = Color.DimGray.ToVector();
 
-            var sphere1 = new Sphere(Vector.CreateVector3(0.8, 0.0, 0), Vector.CreateVector3(1, 1, 1), 150)
+            var sphere1 = new Sphere(
+                Color.LightBlue,
+                Color.White, 150)
             {
                 Name = "Yellow Sphere",
             };
-            sphere1.Model.Translate(-0.75, 0, 0);	
-            var sphere2 = new Sphere(Vector.CreateVector3(0.0, 0, 0.8), Vector.CreateVector3(1, 1, 1), 150)
+            sphere1.Model.Translate(-0.75, 0, 0.0);	
+            var sphere2 = new Sphere(
+                Color.Red,
+                Color.White, 150)
             {
                 Name = "Red Sphere",
             };

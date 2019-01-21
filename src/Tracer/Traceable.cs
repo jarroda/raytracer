@@ -1,3 +1,4 @@
+using System.Drawing;
 using MathNet.Numerics.LinearAlgebra;
 
 namespace Tracer
@@ -6,6 +7,7 @@ namespace Tracer
     {
         public MatrixPair Model { get; private set; } = new MatrixPair();
         public string Name { get; set; }
+
         public Vector<double> BaseColor { get; set; } 
             = Vector<double>.Build.DenseOfArray(new double[] { 1, 1, 1 });
         public Vector<double> SpecularColor { get; set; } 
