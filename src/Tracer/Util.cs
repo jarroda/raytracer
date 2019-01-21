@@ -73,10 +73,12 @@ namespace Tracer
             else
             {
                 var normal = nearestObject.GetNormalAt(ray.PointAt(nearestHit));
-                var baseColor = nearestObject.GetBaseColorAt(ray.PointAt(nearestHit));
-                var color = baseColor.ToVector3().TermMultiple(ambientLight.ToVector3());
+                var baseColor = nearestObject.GetBaseColorAt(ray.PointAt(nearestHit))
+                    .ToVector();
+                var color = Vector3.Multiply(baseColor, ambientLight.ToVector());
 
                 Vector3 lightVector,
+                    lightColorVector,
                     viewingVector,
                     diffuseContribution, 
                     specularContribution,
@@ -86,12 +88,13 @@ namespace Tracer
                 foreach (var l in lights)
                 {
                     lightVector = l.GetLightVector(ray.PointAt((float)nearestHit));
+                    lightColorVector = l.Color.ToVector();
                     lDotN = Vector3.Dot(lightVector, normal);
                     
                     if (lDotN > 0)
                     {
                         // Diffuse light contribution
-                        diffuseContribution = baseColor.ToVector3().TermMultiple(l.Color.ToVector3()).ScalarMultiple(lDotN);
+                        diffuseContribution = Vector3.Multiply(Vector3.Multiply(baseColor, lightColorVector), lDotN);
                         color = color + diffuseContribution;
                         
                         // Specular light contribution
@@ -101,8 +104,8 @@ namespace Tracer
                         
                         if (hDotN > 0)
                         {
-                            specularContribution = nearestObject.SpecularColor.ToVector3().TermMultiple(l.Color.ToVector3())
-                                .ScalarMultiple((float)Math.Pow(hDotN, nearestObject.SpecularExponent));
+                            specularContribution = Vector3.Multiply(Vector3.Multiply(nearestObject.SpecularColor.ToVector(), lightColorVector),
+                                (float)Math.Pow(hDotN, nearestObject.SpecularExponent));
                             color = color + specularContribution;
                         }
                     }
@@ -119,22 +122,15 @@ namespace Tracer
         public static int ToRGB(this float val)
             => (int)Math.Floor(val >= 1 ? 255 : val * 256.0);
         
-        public static Color ToColor(this System.Numerics.Vector3 vector)
+        public static Color ToColor(this Vector3 vector)
             => Color.FromArgb(vector.X.ToRGB(), vector.Y.ToRGB(), vector.Z.ToRGB());
 
-        public static System.Numerics.Vector3 ToVector3(this Color color)
-            => new System.Numerics.Vector3(
+        public static Vector3 ToVector(this Color color)
+            => new Vector3(
                 (float)color.R / 256,
                 (float)color.G / 256,
                 (float)color.B / 256
             );
-
-        // public static Vector<double> ToVector(this Color color)
-        //     => Vector.CreateVector3(
-        //         (double)color.R / 256,
-        //         (double)color.G / 256,
-        //         (double)color.B / 256
-        //     );
 
         public static float[] SolveQuadraticPositive(float a, float b, float c)
         {
@@ -186,7 +182,7 @@ namespace Tracer
                 }
             }
         }
-        public static MathNet.Numerics.LinearAlgebra.Vector<double> ToVector(this System.Numerics.Vector3 vector)
+        public static MathNet.Numerics.LinearAlgebra.Vector<double> ToVector(this Vector3 vector)
             => Vector.CreateVector3(vector.X, vector.Y, vector.Z);
 
         public static Vector3 ToVector(this MathNet.Numerics.LinearAlgebra.Vector<double> vector)

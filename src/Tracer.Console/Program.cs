@@ -14,7 +14,7 @@ namespace Tracer
         static void Main(string[] args)
         {
             var sphere1 = new Sphere(
-                Color.LightBlue,
+                Color.LightGreen,
                 Color.White, 150)
             {
                 Name = "Yellow Sphere",
