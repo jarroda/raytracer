@@ -1,46 +1,44 @@
-
-
-using MathNet.Numerics.LinearAlgebra;
+using System.Numerics;
 
 namespace Tracer
 {    
     public static class Viewing
     {
-        public static Matrix<double> ViewingTransform(
-            double eyeX, double eyeY, double eyeZ,
-            double centerX, double centerY, double centerZ,
-            double upX, double upY, double upZ)
+        public static MathNet.Numerics.LinearAlgebra.Matrix<double> ViewingTransform(
+            float eyeX, float eyeY, float eyeZ,
+            float centerX, float centerY, float centerZ,
+            float upX, float upY, float upZ)
             => ViewingTransform(
-                Vector.CreateVector3(eyeX, eyeY, eyeZ),
-                Vector.CreateVector3(centerX, centerY, centerZ),
-                Vector.CreateVector3(upX, upY, upZ));
+                new Vector3(eyeX, eyeY, eyeZ),
+                new Vector3(centerX, centerY, centerZ),
+                new Vector3(upX, upY, upZ));
 
-        public static Matrix<double> ViewingTransform(Vector<double> eye, Vector<double> center, Vector<double> up)
+        public static MathNet.Numerics.LinearAlgebra.Matrix<double> ViewingTransform(Vector3 eye, Vector3 center, Vector3 up)
         {
-            var f = center.Subtract(eye).Normalize();
-            var upp = up.Normalize();
-            var s = f.CrossProduct(upp);
-            var u = s.CrossProduct(f);
-            var sp = s.Normalize();
-            var uprime = u.Normalize();
+            var f = Vector3.Normalize(center - eye);
+            var upp = Vector3.Normalize(up);
+            var s = Vector3.Cross(f, upp);
+            var u = Vector3.Cross(s, f);
+            var sp = Vector3.Normalize(s);
+            var uprime = Vector3.Normalize(u);
 
             var m = Matrix.Create();
-            m[0,0] = sp[0];
-            m[0,1] = sp[1];
-            m[0,2] = sp[2];
-            m[1,0] = uprime[0];
-            m[1,1] = uprime[1];
-            m[1,2] = uprime[2];
-            m[2,0] = f[0];
-            m[2,1] = f[1];
-            m[2,2] = f[2];
+            m[0,0] = sp.X;
+            m[0,1] = sp.Y;
+            m[0,2] = sp.Z;
+            m[1,0] = uprime.X;
+            m[1,1] = uprime.Y;
+            m[1,2] = uprime.Z;
+            m[2,0] = f.X;
+            m[2,1] = f.Y;
+            m[2,2] = f.Z;
 
-            var t = Matrix.CreateTranslation(-eye[0], -eye[1], -eye[2]);
+            var t = Matrix.CreateTranslation(-eye.X, -eye.Y, -eye.Z);
             
             return m.Multiply(t);
         }
 
-        public static Matrix<double> InverseViewingTransform(Matrix<double> vt, Vector<double> eye)
+        public static MathNet.Numerics.LinearAlgebra.Matrix<double> InverseViewingTransform(MathNet.Numerics.LinearAlgebra.Matrix<double> vt, Vector3 eye)
         {
             var m = Matrix.Create();
 
@@ -48,7 +46,7 @@ namespace Tracer
                 for ( int j = 0; j < 3; j++ )
                     m[i,j] = vt[j,i];
 
-            var t = Matrix.CreateTranslation(-eye[0], -eye[1], -eye[2]);
+            var t = Matrix.CreateTranslation(-eye.X, -eye.Y, -eye.Z);
             
             return m.Multiply(t);
         }

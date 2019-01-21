@@ -20,9 +20,9 @@ namespace Tracer.ImageSharp
             var v2w = new ViewportToWindowTransform(w, v);
 
             var viewing = Viewing.ViewingTransform(
-                scene.Eye.ToVector(),
-                scene.Center.ToVector(),
-                scene.Up.ToVector()
+                scene.Eye,
+                scene.Center,
+                scene.Up
             );
 
             image.RenderTo(v2w, (float)scene.ViewingDistance, viewing, scene.Eye,
