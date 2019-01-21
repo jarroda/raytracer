@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using MathNet.Numerics.LinearAlgebra;
+using System.Numerics;
 
 namespace Tracer
 {    
@@ -20,12 +20,8 @@ namespace Tracer
         //     Console.WriteLine();
         // }
         
-        public static Color TraceARay(Ray ray, IEnumerable<Traceable> objects, IEnumerable<Light> lights, Vector<double> eye, Color ambientLight)
-        {
-            var color = ray.Trace(objects, lights, eye, ambientLight);
-            return color == null ? Color.Black :
-                Color.FromArgb(color[0].ToRGB(), color[1].ToRGB(), color[2].ToRGB());
-        }
+        public static Color TraceARay(Ray ray, IEnumerable<Traceable> objects, IEnumerable<Light> lights, Vector3 eye, Color ambientLight)
+            => ray.Trace(objects, lights, eye, ambientLight);
 
         /// <summary>
         /// Trace a ray and return the RGB color vector.
@@ -35,7 +31,7 @@ namespace Tracer
         /// <param name="lights">The collection of lights</param>
         /// <param name="eye">The eye vector</param>
         /// <returns>The RGB color vector3 if the ray hits an object, otherwise null.</returns>
-        public static Vector<double> Trace(this Ray ray, IEnumerable<Traceable> objects, IEnumerable<Light> lights, Vector<double> eye, Color ambientLight)
+        public static Color Trace(this Ray ray, IEnumerable<Traceable> objects, IEnumerable<Light> lights, Vector3 eye, Color ambientLight)
         {
             if (objects == null)
             {
@@ -50,9 +46,9 @@ namespace Tracer
                 throw new ArgumentNullException(nameof(eye));
             }
 
-            double hit;
+            float hit;
             float[] hits;
-            var nearestHit = Util.NearlyInfinite;
+            float nearestHit = (float)Util.NearlyInfinite;
             Traceable nearestObject = null;
 
             foreach (var t in objects)
@@ -72,48 +68,47 @@ namespace Tracer
 
             if (nearestObject == null)
             {
-                return null;
+                return Color.Black;
             }
             else
             {
-                var normal = nearestObject.GetNormalAt(ray.PointAt((float)nearestHit).ToVector());
-                var baseColor = nearestObject.GetBaseColorAt(ray.PointAt((float)nearestHit).ToVector());
-                var color = baseColor.ToVector().TermMultiple(ambientLight.ToVector());
-                
-                Vector<double> lightVector,	
+                var normal = nearestObject.GetNormalAt(ray.PointAt(nearestHit));
+                var baseColor = nearestObject.GetBaseColorAt(ray.PointAt(nearestHit));
+                var color = baseColor.ToVector3().TermMultiple(ambientLight.ToVector3());
+
+                Vector3 lightVector,
+                    viewingVector,
                     diffuseContribution, 
                     specularContribution,
-                    viewingVector,
                     halfVector;
-                double lDotN, hDotN;
+                float lDotN, hDotN;
                 
                 foreach (var l in lights)
                 {
-                    lightVector = l.GetLightVector(ray.PointAt((float)nearestHit)).ToVector();
-                    lDotN = lightVector.DotProduct(normal);
+                    lightVector = l.GetLightVector(ray.PointAt((float)nearestHit));
+                    lDotN = Vector3.Dot(lightVector, normal);
                     
                     if (lDotN > 0)
                     {
                         // Diffuse light contribution
-                        diffuseContribution = baseColor.ToVector().TermMultiple(l.Color.ToVector()).ScalarMultiple(lDotN);
-                        color = color.Add(diffuseContribution);
+                        diffuseContribution = baseColor.ToVector3().TermMultiple(l.Color.ToVector3()).ScalarMultiple(lDotN);
+                        color = color + diffuseContribution;
                         
                         // Specular light contribution
-                        viewingVector = eye.Subtract(nearestObject.Model.Origin.Image(ray.PointAt((float)nearestHit).ToVector())).Normalize();
-                        halfVector = viewingVector.Add(lightVector).Normalize();
-                        hDotN = halfVector.DotProduct(normal);
+                        viewingVector = Vector3.Normalize(eye - nearestObject.Model.Origin.Image(ray.PointAt(nearestHit).ToVector()).ToVector());
+                        halfVector = Vector3.Normalize(viewingVector + lightVector);
+                        hDotN = Vector3.Dot(halfVector, normal);
                         
                         if (hDotN > 0)
                         {
-                            specularContribution = nearestObject.SpecularColor.ToVector().TermMultiple(l.Color.ToVector())
-                                .ScalarMultiple(Math.Pow(hDotN, nearestObject.SpecularExponent));
-                            color = color.Add(specularContribution);
+                            specularContribution = nearestObject.SpecularColor.ToVector3().TermMultiple(l.Color.ToVector3())
+                                .ScalarMultiple((float)Math.Pow(hDotN, nearestObject.SpecularExponent));
+                            color = color + specularContribution;
                         }
                     }
                 }
                 
-                color.Clamp();
-                return color;
+                return color.Clamp().ToColor();
             }
         }
 
@@ -134,12 +129,12 @@ namespace Tracer
                 (float)color.B / 256
             );
 
-        public static Vector<double> ToVector(this Color color)
-            => Vector.CreateVector3(
-                (double)color.R / 256,
-                (double)color.G / 256,
-                (double)color.B / 256
-            );
+        // public static Vector<double> ToVector(this Color color)
+        //     => Vector.CreateVector3(
+        //         (double)color.R / 256,
+        //         (double)color.G / 256,
+        //         (double)color.B / 256
+        //     );
 
         public static float[] SolveQuadraticPositive(float a, float b, float c)
         {
@@ -191,10 +186,10 @@ namespace Tracer
                 }
             }
         }
-        public static Vector<double> ToVector(this System.Numerics.Vector3 vector)
+        public static MathNet.Numerics.LinearAlgebra.Vector<double> ToVector(this System.Numerics.Vector3 vector)
             => Vector.CreateVector3(vector.X, vector.Y, vector.Z);
 
-        public static System.Numerics.Vector3 ToVector(this Vector<double> vector)
-            => new System.Numerics.Vector3((float)vector[0], (float)vector[1], (float)vector[2]);
+        public static Vector3 ToVector(this MathNet.Numerics.LinearAlgebra.Vector<double> vector)
+            => new Vector3((float)vector[0], (float)vector[1], (float)vector[2]);
     }
 }

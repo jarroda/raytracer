@@ -41,7 +41,7 @@ namespace Tracer.ImageSharp
                 Ray ray;
                 Vector3 viewingPoint;
                 Vector3 worldPoint;
-                Vector3 color;
+                Color color;
                 PointF viewportPoint;
                 PointF windowPoint = new PointF(0, 0);
 
@@ -52,9 +52,8 @@ namespace Tracer.ImageSharp
                     viewingPoint = new Vector3(windowPoint.X, windowPoint.Y, viewDistance);
                     worldPoint = viewing.Image(viewingPoint.ToVector()).ToVector();
                     ray = Ray.CreateFromPoints(eye, worldPoint);
-                    var v = ray.Trace(objects, lights, eye.ToVector(), ambientLight);
-                    color = v == null ? new Vector3(0,0,0) : v.ToVector();
-                    image[x,y] = color == null ? Rgba32.Black : new Rgba32(color.X, color.Y, color.Z);
+                    color = ray.Trace(objects, lights, eye, ambientLight);
+                    image[x,y] = new Rgba32(color.R, color.G, color.B);
                 }
             });
 
