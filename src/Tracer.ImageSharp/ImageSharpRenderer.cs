@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
-using MathNet.Numerics.LinearAlgebra;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -27,10 +26,12 @@ namespace Tracer.ImageSharp
             );
 
             image.RenderTo(v2w, (float)scene.ViewingDistance, viewing, scene.Eye,
-                scene.Objects, scene.Lights);
+                scene.Objects, scene.Lights, scene.AmbientLight);
         }
 
-        public static void RenderTo(this Image<Rgba32> image, IViewportToWindowTransform v2w, float viewDistance, Matrix<double> viewing, Vector3 eye, IEnumerable<Traceable> objects, IEnumerable<Light> lights)
+        public static void RenderTo(this Image<Rgba32> image, IViewportToWindowTransform v2w, float viewDistance, 
+            MathNet.Numerics.LinearAlgebra.Matrix<double> viewing, Vector3 eye, 
+            IEnumerable<Traceable> objects, IEnumerable<Light> lights, Color ambientLight)
         {
             var sw = new System.Diagnostics.Stopwatch();
             sw.Start();
@@ -38,8 +39,8 @@ namespace Tracer.ImageSharp
             Parallel.For(0, image.Height, (y, state) =>
             {
                 Ray ray;
-                System.Numerics.Vector3 viewingPoint;
-                System.Numerics.Vector3 worldPoint;
+                Vector3 viewingPoint;
+                Vector3 worldPoint;
                 Vector3 color;
                 PointF viewportPoint;
                 PointF windowPoint = new PointF(0, 0);
@@ -48,10 +49,10 @@ namespace Tracer.ImageSharp
                 {
                     viewportPoint = new PointF(x, y);
                     windowPoint = v2w.Transform(viewportPoint);
-                    viewingPoint = new System.Numerics.Vector3(windowPoint.X, windowPoint.Y, viewDistance);
+                    viewingPoint = new Vector3(windowPoint.X, windowPoint.Y, viewDistance);
                     worldPoint = viewing.Image(viewingPoint.ToVector()).ToVector();
                     ray = Ray.CreateFromPoints(eye, worldPoint);
-                    var v = ray.Trace(objects, lights, eye.ToVector());
+                    var v = ray.Trace(objects, lights, eye.ToVector(), ambientLight);
                     color = v == null ? new Vector3(0,0,0) : v.ToVector();
                     image[x,y] = color == null ? Rgba32.Black : new Rgba32(color.X, color.Y, color.Z);
                 }

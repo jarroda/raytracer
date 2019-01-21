@@ -20,9 +20,9 @@ namespace Tracer
         //     Console.WriteLine();
         // }
         
-        public static Color TraceARay(Ray ray, IEnumerable<Traceable> objects, IEnumerable<Light> lights, Vector<double> eye)
+        public static Color TraceARay(Ray ray, IEnumerable<Traceable> objects, IEnumerable<Light> lights, Vector<double> eye, Color ambientLight)
         {
-            var color = ray.Trace(objects, lights, eye);
+            var color = ray.Trace(objects, lights, eye, ambientLight);
             return color == null ? Color.Black :
                 Color.FromArgb(color[0].ToRGB(), color[1].ToRGB(), color[2].ToRGB());
         }
@@ -35,7 +35,7 @@ namespace Tracer
         /// <param name="lights">The collection of lights</param>
         /// <param name="eye">The eye vector</param>
         /// <returns>The RGB color vector3 if the ray hits an object, otherwise null.</returns>
-        public static Vector<double> Trace(this Ray ray, IEnumerable<Traceable> objects, IEnumerable<Light> lights, Vector<double> eye)
+        public static Vector<double> Trace(this Ray ray, IEnumerable<Traceable> objects, IEnumerable<Light> lights, Vector<double> eye, Color ambientLight)
         {
             if (objects == null)
             {
@@ -78,7 +78,7 @@ namespace Tracer
             {
                 var normal = nearestObject.GetNormalAt(ray.PointAt((float)nearestHit).ToVector());
                 var baseColor = nearestObject.GetBaseColorAt(ray.PointAt((float)nearestHit).ToVector());
-                var color = baseColor.TermMultiple(AmbientLight.Color);
+                var color = baseColor.TermMultiple(ambientLight.ToVector());
                 
                 Vector<double> lightVector,	
                     diffuseContribution, 
@@ -123,6 +123,9 @@ namespace Tracer
         
         public static int ToRGB(this float val)
             => (int)Math.Floor(val >= 1 ? 255 : val * 256.0);
+        
+        public static Color ToColor(this System.Numerics.Vector3 vector)
+            => Color.FromArgb(vector.X.ToRGB(), vector.Y.ToRGB(), vector.Z.ToRGB());
 
         public static System.Numerics.Vector3 ToVector3(this Color color)
             => new System.Numerics.Vector3(

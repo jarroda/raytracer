@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Drawing;
-using MathNet.Numerics.LinearAlgebra;using System.Numerics;
+using System.Numerics;
 
 namespace Tracer
 {
@@ -12,7 +12,7 @@ namespace Tracer
         public Vector3 Eye { get; set; }
         public Vector3 Center { get; set; } = new Vector3(0, 0, 0);
         public Vector3 Up { get; set; } = new Vector3(0, 1, 0);
-        public Vector3 AmbientLight { get; set; }
+        public Color AmbientLight { get; set; }
         public List<Light> Lights { get; set; }
         public List<Traceable> Objects { get; set; }
     }

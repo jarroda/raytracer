@@ -13,9 +13,6 @@ namespace Tracer
     {
         static void Main(string[] args)
         {
-            AmbientLight.Color = Vector.CreateVector3(0.2, 0.2, 0.2);
-            // AmbientLight.Color = Color.DimGray.ToVector();
-
             var sphere1 = new Sphere(
                 Color.LightBlue,
                 Color.White, 150)
@@ -37,6 +34,7 @@ namespace Tracer
                 Eye = new Vector3(0, 0, 5),
                 Up = new Vector3(0, 1, 0),
                 ViewingDistance = 5,
+                AmbientLight = new Vector3(0.2f, 0.2f, 0.2f).ToColor(),
                 Lights = new List<Light>
                 {
                     new PointLight { Location = new Vector3(5, 3, 5) },
