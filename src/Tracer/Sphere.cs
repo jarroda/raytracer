@@ -18,10 +18,16 @@ namespace Tracer
         {
             var localRay = GetLocalRay(ray);
 
+            // return Util.SolveQuadraticPositive(
+            //     localRay.Direction.MagnitudeSquared(),
+            //     2 * localRay.Origin.DotProduct(localRay.Direction),
+            //     localRay.Origin.MagnitudeSquared() - 1
+            // );
+
             return Util.SolveQuadraticPositive(
-                localRay.Direction.MagnitudeSquared(),
-                2 * localRay.Origin.DotProduct(localRay.Direction),
-                localRay.Origin.MagnitudeSquared() - 1
+                localRay.Direction.ToVector().MagnitudeSquared(),
+                2 * localRay.Origin.ToVector().DotProduct(localRay.Direction.ToVector()),
+                localRay.Origin.ToVector().MagnitudeSquared() - 1
             );
         }
 

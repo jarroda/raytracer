@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Numerics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using Tracer.ImageSharp;
@@ -32,13 +33,13 @@ namespace Tracer
 
             var scene = new Scene
             {
-                Center = Vector.CreateVector3(0, 0, 0),
-                Eye = Vector.CreateVector3(0, 0, 5),
-                Up = Vector.CreateVector3(0, 1, 0),
+                Center = new Vector3(0, 0, 0),
+                Eye = new Vector3(0, 0, 5),
+                Up = new Vector3(0, 1, 0),
                 ViewingDistance = 5,
                 Lights = new List<Light>
                 {
-                    new PointLight { Location = Vector.CreateVector3(5, 3, 5), Color = Vector.CreateVector3(1, 1, 1) },
+                    new PointLight { Location = new Vector3(5, 3, 5) },
                 },
                 Objects = new List<Traceable> { sphere1, sphere2 },
             };

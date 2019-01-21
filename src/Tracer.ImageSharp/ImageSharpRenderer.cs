@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using MathNet.Numerics.LinearAlgebra;
 using SixLabors.ImageSharp;
@@ -15,29 +16,21 @@ namespace Tracer.ImageSharp
     {
         public static void RenderTo(this Scene scene, Image<Rgba32> image)
         {
-            //             Ray ray;
-            // Vector<double> viewingPoint;
-            // Vector<double> worldPoint;
-            // Vector<double> color;
-            // PointF viewportPoint;
-            // PointF windowPoint = new PointF(0, 0);
             var v = new RectangleF(0, 0, image.Width, image.Height);
-            // var v = new RectangleF(0, 0, 500, 500);
-	        //var w = new RectangleF(-2.0f, 1.5f, 4.0f, 3.0f);
             var w = new RectangleF(-2.0f, 2.0f, 4.0f, 4.0f);
             var v2w = new ViewportToWindowTransform(w, v);
 
             var viewing = Viewing.ViewingTransform(
-                scene.Eye,
-                scene.Center,
-                scene.Up
+                scene.Eye.ToVector(),
+                scene.Center.ToVector(),
+                scene.Up.ToVector()
             );
 
-            image.RenderTo(v2w, scene.ViewingDistance, viewing, scene.Eye,
+            image.RenderTo(v2w, (float)scene.ViewingDistance, viewing, scene.Eye,
                 scene.Objects, scene.Lights);
         }
 
-        public static void RenderTo(this Image<Rgba32> image, IViewportToWindowTransform v2w, double viewDistance, Matrix<double> viewing, Vector<double> eye, IEnumerable<Traceable> objects, IEnumerable<Light> lights)
+        public static void RenderTo(this Image<Rgba32> image, IViewportToWindowTransform v2w, float viewDistance, Matrix<double> viewing, Vector3 eye, IEnumerable<Traceable> objects, IEnumerable<Light> lights)
         {
             var sw = new System.Diagnostics.Stopwatch();
             sw.Start();
@@ -45,9 +38,9 @@ namespace Tracer.ImageSharp
             Parallel.For(0, image.Height, (y, state) =>
             {
                 Ray ray;
-                Vector<double> viewingPoint;
-                Vector<double> worldPoint;
-                Vector<double> color;
+                System.Numerics.Vector3 viewingPoint;
+                System.Numerics.Vector3 worldPoint;
+                Vector3 color;
                 PointF viewportPoint;
                 PointF windowPoint = new PointF(0, 0);
 
@@ -55,11 +48,12 @@ namespace Tracer.ImageSharp
                 {
                     viewportPoint = new PointF(x, y);
                     windowPoint = v2w.Transform(viewportPoint);
-                    viewingPoint = Vector.CreateVector3(windowPoint.X, windowPoint.Y, viewDistance);
-                    worldPoint = viewing.Image(viewingPoint);
-                    ray = new Ray(eye, worldPoint);
-                    color = ray.Trace(objects, lights, eye);
-                    image[x,y] = color == null ? Rgba32.Black : new Rgba32((float)color[0], (float)color[1], (float)color[2]);
+                    viewingPoint = new System.Numerics.Vector3(windowPoint.X, windowPoint.Y, viewDistance);
+                    worldPoint = viewing.Image(viewingPoint.ToVector()).ToVector();
+                    ray = Ray.CreateFromPoints(eye, worldPoint);
+                    var v = ray.Trace(objects, lights, eye.ToVector());
+                    color = v == null ? new Vector3(0,0,0) : v.ToVector();
+                    image[x,y] = color == null ? Rgba32.Black : new Rgba32(color.X, color.Y, color.Z);
                 }
             });
 

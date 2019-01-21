@@ -1,12 +1,12 @@
-using MathNet.Numerics.LinearAlgebra;
+using System.Drawing;
+using System.Numerics;
 
 namespace Tracer
 {    
     public abstract class Light
     {
-        public Vector<double> Color { get; set; }
-            = Vector.CreateVector3(0, 0, 0);
+        public Color Color { get; set; } = Color.White;
 
-        public abstract Vector<double> GetLightVector(Vector<double> point);
+        public abstract Vector3 GetLightVector(Vector3 point);
     }
 }

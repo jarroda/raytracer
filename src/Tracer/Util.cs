@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 
 namespace Tracer
@@ -20,13 +19,6 @@ namespace Tracer
         //     Console.WriteLine($"{m.M41}\t{m.M42}\t{m.M43}\t{m.M44}");
         //     Console.WriteLine();
         // }
-
-        public static Vector<double> ToVector(this Color color)
-            => Vector.CreateVector3(
-                (double)color.R / 256,
-                (double)color.G / 256,
-                (double)color.B / 256
-            );
         
         public static Color TraceARay(Ray ray, IEnumerable<Traceable> objects, IEnumerable<Light> lights, Vector<double> eye)
         {
@@ -84,8 +76,8 @@ namespace Tracer
             }
             else
             {
-                var normal = nearestObject.GetNormalAt(ray.PointAt(nearestHit));
-                var baseColor = nearestObject.GetBaseColorAt(ray.PointAt(nearestHit));
+                var normal = nearestObject.GetNormalAt(ray.PointAt((float)nearestHit).ToVector());
+                var baseColor = nearestObject.GetBaseColorAt(ray.PointAt((float)nearestHit).ToVector());
                 var color = baseColor.TermMultiple(AmbientLight.Color);
                 
                 Vector<double> lightVector,	
@@ -97,23 +89,23 @@ namespace Tracer
                 
                 foreach (var l in lights)
                 {
-                    lightVector = l.GetLightVector(ray.PointAt(nearestHit));
-                    lDotN = lightVector.DotProduct(normal);	
+                    lightVector = l.GetLightVector(ray.PointAt((float)nearestHit)).ToVector();
+                    lDotN = lightVector.DotProduct(normal);
                     
                     if (lDotN > 0)
                     {
                         // Diffuse light contribution
-                        diffuseContribution = baseColor.TermMultiple(l.Color).ScalarMultiple(lDotN);
+                        diffuseContribution = baseColor.TermMultiple(l.Color.ToVector()).ScalarMultiple(lDotN);
                         color = color.Add(diffuseContribution);
                         
                         // Specular light contribution
-                        viewingVector = eye.Subtract(nearestObject.Model.Origin.Image(ray.PointAt(nearestHit))).Normalize();
+                        viewingVector = eye.Subtract(nearestObject.Model.Origin.Image(ray.PointAt((float)nearestHit).ToVector())).Normalize();
                         halfVector = viewingVector.Add(lightVector).Normalize();
                         hDotN = halfVector.DotProduct(normal);
                         
                         if (hDotN > 0)
                         {
-                            specularContribution = nearestObject.SpecularColor.TermMultiple(l.Color)
+                            specularContribution = nearestObject.SpecularColor.TermMultiple(l.Color.ToVector())
                                 .ScalarMultiple(Math.Pow(hDotN, nearestObject.SpectularExponent));
                             color = color.Add(specularContribution);
                         }
@@ -125,8 +117,26 @@ namespace Tracer
             }
         }
 
+
         public static int ToRGB(this double val)
             => (int)Math.Floor(val >= 1 ? 255 : val * 256.0);
+        
+        public static int ToRGB(this float val)
+            => (int)Math.Floor(val >= 1 ? 255 : val * 256.0);
+
+        public static System.Numerics.Vector3 ToVector3(this Color color)
+            => new System.Numerics.Vector3(
+                (float)color.R / 256,
+                (float)color.G / 256,
+                (float)color.B / 256
+            );
+
+        public static Vector<double> ToVector(this Color color)
+            => Vector.CreateVector3(
+                (double)color.R / 256,
+                (double)color.G / 256,
+                (double)color.B / 256
+            );
 
         public static double[] SolveQuadraticPositive(double a, double b, double c)
         {
@@ -180,5 +190,10 @@ namespace Tracer
                 }
             }
         }
+        public static Vector<double> ToVector(this System.Numerics.Vector3 vector)
+            => Vector.CreateVector3(vector.X, vector.Y, vector.Z);
+
+        public static System.Numerics.Vector3 ToVector(this Vector<double> vector)
+            => new System.Numerics.Vector3((float)vector[0], (float)vector[1], (float)vector[2]);
     }
 }

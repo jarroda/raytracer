@@ -1,20 +1,19 @@
 using System;
-using MathNet.Numerics.LinearAlgebra;
+using System.Numerics;
 
 namespace Tracer
 {    
     public class PointLight : Light
     {
-        public Vector<double> Location { get; set; }
-        public override Vector<double> GetLightVector(Vector<double> point)
+        public Vector3 Location { get; set; }
+        public override Vector3 GetLightVector(Vector3 point)
         {
             if (point == null)
             {
                 throw new ArgumentNullException(nameof(point));
             }
             
-            // TODO: Make this not brittle (ie, not return null)
-            return Location?.Subtract(point).Normalize();
+            return Vector3.Normalize(Location - point);
         }
     }
 }
