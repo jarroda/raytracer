@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Linq;
+using System.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 
 namespace Tracer
@@ -9,31 +10,26 @@ namespace Tracer
         public Sphere() { }
         public Sphere(Color baseColor, Color specular, double exponent)
         {
-            BaseColor = baseColor.ToVector();
-            SpecularColor = specular.ToVector();
-            SpectularExponent = exponent;
+            BaseColor = baseColor;
+            SpecularColor = specular;
+            SpecularExponent = exponent;
         }
 
-        public override double[] Intersections(Ray ray)
+        public override float[] Intersections(Ray ray)
         {
             var localRay = GetLocalRay(ray);
 
-            // return Util.SolveQuadraticPositive(
-            //     localRay.Direction.MagnitudeSquared(),
-            //     2 * localRay.Origin.DotProduct(localRay.Direction),
-            //     localRay.Origin.MagnitudeSquared() - 1
-            // );
-
             return Util.SolveQuadraticPositive(
-                localRay.Direction.ToVector().MagnitudeSquared(),
-                2 * localRay.Origin.ToVector().DotProduct(localRay.Direction.ToVector()),
-                localRay.Origin.ToVector().MagnitudeSquared() - 1
+                localRay.Direction.MagnitudeSquared(),
+                2 * Vector3.Dot(localRay.Origin, localRay.Direction),
+                localRay.Origin.MagnitudeSquared() - 1
             );
         }
 
-        public override Vector<double> GetNormalAt(Vector<double> p)
-            => Model.TransformNormal(Model.InverseImage(p));
+        public override Vector3 GetNormalAt(Vector3 p)
+            => Model.TransformNormal(Model.InverseImage(p.ToVector())).ToVector();
 
-        public override Vector<double> GetBaseColorAt(Vector<double> p) => BaseColor;
+        public override Color GetBaseColorAt(Vector3 p) 
+            => BaseColor;
     }
 }

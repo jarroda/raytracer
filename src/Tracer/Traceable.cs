@@ -1,5 +1,5 @@
 using System.Drawing;
-using MathNet.Numerics.LinearAlgebra;
+using System.Numerics;
 
 namespace Tracer
 {    
@@ -8,11 +8,9 @@ namespace Tracer
         public MatrixPair Model { get; private set; } = new MatrixPair();
         public string Name { get; set; }
 
-        public Vector<double> BaseColor { get; set; } 
-            = Vector<double>.Build.DenseOfArray(new double[] { 1, 1, 1 });
-        public Vector<double> SpecularColor { get; set; } 
-            = Vector<double>.Build.DenseOfArray(new double[] { 1, 1, 1 });
-        public double SpectularExponent { get; set; } = 0;
+        public Color BaseColor { get; set; } = Color.White;
+        public Color SpecularColor { get; set; } = Color.White;
+        public double SpecularExponent { get; set; } = 0;
 
         public Ray GetLocalRay(Ray ray)
         {
@@ -24,8 +22,8 @@ namespace Tracer
             return Ray.CreateFromPoints(localOrigin.ToVector(), localPoint.ToVector());
         }
 
-        public abstract double[] Intersections(Ray ray);
-        public abstract Vector<double> GetNormalAt(Vector<double> p);
-        public abstract Vector<double> GetBaseColorAt(Vector<double> p);
+        public abstract float[] Intersections(Ray ray);
+        public abstract Vector3 GetNormalAt(Vector3 p);
+        public abstract Color GetBaseColorAt(Vector3 p);
     }
 }

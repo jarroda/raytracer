@@ -16,6 +16,12 @@ namespace Tracer
         /// <returns>The magnitude of the input vector.</returns>
         public static double Magnitude(this Vector<double> vector)
             => Math.Sqrt(vector.Sum(v => v * v));
+        
+        public static float Magnitude(this System.Numerics.Vector3 vector)
+            => (float)Math.Sqrt(vector.MagnitudeSquared());
+
+        public static float MagnitudeSquared(this System.Numerics.Vector3 vector)
+            => (vector.X * vector.X) + (vector.Y * vector.Y) + (vector.Z * vector.Z);
 
         /// <summary>
         /// Returns the square of the magnitude of the input vector.
