@@ -16,10 +16,10 @@ namespace Tracer
         {
             var worldOrigin = ray.Origin;
             var worldPoint = ray.PointAt(1);
-            var localOrigin = Model.Inverse.Image(Vector.CreateVector3(worldOrigin.X, worldOrigin.Y, worldOrigin.Z));
-            var localPoint = Model.Inverse.Image(Vector.CreateVector3(worldPoint.X, worldPoint.Y, worldPoint.Z));
+            var localOrigin = Model.Inverse.Image(worldOrigin);
+            var localPoint = Model.Inverse.Image(worldPoint);
             
-            return Ray.CreateFromPoints(localOrigin.ToVector(), localPoint.ToVector());
+            return Ray.CreateFromPoints(localOrigin, localPoint);
         }
 
         public abstract float[] Intersections(Ray ray);

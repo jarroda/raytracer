@@ -27,7 +27,8 @@ namespace Tracer
         }
 
         public override Vector3 GetNormalAt(Vector3 p)
-            => Model.TransformNormal(Model.InverseImage(p.ToVector())).ToVector();
+            // => Model.TransformNormal(Model.InverseOld.Image(p.ToVector())).ToVector();
+            => Model.TransformNormal(Model.InverseImage(p));
 
         public override Color GetBaseColorAt(Vector3 p) 
             => BaseColor;

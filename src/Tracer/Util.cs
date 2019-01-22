@@ -98,7 +98,7 @@ namespace Tracer
                         color = color + diffuseContribution;
                         
                         // Specular light contribution
-                        viewingVector = Vector3.Normalize(eye - nearestObject.Model.Origin.Image(ray.PointAt(nearestHit).ToVector()).ToVector());
+                        viewingVector = Vector3.Normalize(eye - nearestObject.Model.Origin.Image(ray.PointAt(nearestHit)));
                         halfVector = Vector3.Normalize(viewingVector + lightVector);
                         hDotN = Vector3.Dot(halfVector, normal);
                         

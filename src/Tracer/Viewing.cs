@@ -4,7 +4,7 @@ namespace Tracer
 {    
     public static class Viewing
     {
-        public static MathNet.Numerics.LinearAlgebra.Matrix<double> ViewingTransform(
+        public static Matrix4x4 ViewingTransform(
             float eyeX, float eyeY, float eyeZ,
             float centerX, float centerY, float centerZ,
             float upX, float upY, float upZ)
@@ -13,7 +13,7 @@ namespace Tracer
                 new Vector3(centerX, centerY, centerZ),
                 new Vector3(upX, upY, upZ));
 
-        public static MathNet.Numerics.LinearAlgebra.Matrix<double> ViewingTransform(Vector3 eye, Vector3 center, Vector3 up)
+        public static Matrix4x4 ViewingTransform(Vector3 eye, Vector3 center, Vector3 up)
         {
             var f = Vector3.Normalize(center - eye);
             var upp = Vector3.Normalize(up);
@@ -22,33 +22,38 @@ namespace Tracer
             var sp = Vector3.Normalize(s);
             var uprime = Vector3.Normalize(u);
 
-            var m = Matrix.Create();
-            m[0,0] = sp.X;
-            m[0,1] = sp.Y;
-            m[0,2] = sp.Z;
-            m[1,0] = uprime.X;
-            m[1,1] = uprime.Y;
-            m[1,2] = uprime.Z;
-            m[2,0] = f.X;
-            m[2,1] = f.Y;
-            m[2,2] = f.Z;
+            var m = Matrix4x4.Identity;
+            m.M11 = sp.X;
+            m.M12 = sp.Y;
+            m.M13 = sp.Z;
+            m.M21 = uprime.X;
+            m.M22 = uprime.Y;
+            m.M23 = uprime.Z;
+            m.M31 = f.X;
+            m.M32 = f.Y;
+            m.M33 = f.Z;
 
             var t = Matrix.CreateTranslation(-eye.X, -eye.Y, -eye.Z);
-            
-            return m.Multiply(t);
+
+            return Matrix4x4.Multiply(m, t);
         }
 
-        public static MathNet.Numerics.LinearAlgebra.Matrix<double> InverseViewingTransform(MathNet.Numerics.LinearAlgebra.Matrix<double> vt, Vector3 eye)
+        public static Matrix4x4 InverseViewingTransform(Matrix4x4 vt, Vector3 eye)
         {
-            var m = Matrix.Create();
-
-            for ( int i = 0; i < 3; i++ )
-                for ( int j = 0; j < 3; j++ )
-                    m[i,j] = vt[j,i];
+            var m = Matrix4x4.Identity;
+            m.M11 = vt.M11;
+            m.M12 = vt.M21;
+            m.M13 = vt.M31;
+            m.M21 = vt.M12;
+            m.M22 = vt.M22;
+            m.M23 = vt.M32;
+            m.M31 = vt.M13;
+            m.M32 = vt.M23;
+            m.M33 = vt.M33;
 
             var t = Matrix.CreateTranslation(-eye.X, -eye.Y, -eye.Z);
             
-            return m.Multiply(t);
+            return Matrix4x4.Multiply(m, t);
         }
     }
 }

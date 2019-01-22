@@ -1,6 +1,6 @@
 using System;
-using MathNet.Numerics;
-using MathNet.Numerics.LinearAlgebra;
+using System.Numerics;
+using MatrixOld = MathNet.Numerics.LinearAlgebra.Matrix<double>;
 
 namespace Tracer
 {
@@ -10,8 +10,8 @@ namespace Tracer
         /// Initializes a new matrix to the identity.
         /// </summary>
         /// <returns>The identity matrix</returns>
-        public static Matrix<double> Create()
-            => Matrix<double>.Build.DenseIdentity(4, 4);
+        public static MatrixOld Create()
+            => MatrixOld.Build.DenseIdentity(4, 4);
 
         /// <summary>
         /// Returns the translation matrix for translating by tx units in the
@@ -22,13 +22,13 @@ namespace Tracer
         /// <param name="ty">Amount to translate in the y-direction</param>
         /// <param name="tz">Amount to translate in the z-direction</param>
         /// <returns>The translation matrix</returns>
-        public static Matrix<double> CreateTranslation(double tx, double ty, double tz)
+        public static Matrix4x4 CreateTranslation(float tx, float ty, float tz)
         {
-            var m = Create();
+            var m = Matrix4x4.Identity;
 
-            m[0,3] = tx;
-            m[1,3] = ty;
-            m[2,3] = tz;
+            m.M14 = tx;
+            m.M24 = ty;
+            m.M34 = tz;
 
             return m;
         }
@@ -46,7 +46,7 @@ namespace Tracer
         /// <param name="y">Shear factor for the y-direction</param>
         /// <param name="z">Shear factor for the z-direction</param>
         /// <returns>The shearing matrix</returns>
-        public static Matrix<double> CreateShearX(double y, double z)
+        public static MatrixOld CreateShearX(double y, double z)
         {
             var m = Create();
 
@@ -69,7 +69,7 @@ namespace Tracer
         /// <param name="x">Shear factor for the x-direction</param>
         /// <param name="z">Shear factor for the z-direction</param>
         /// <returns>The shearing matrix</returns>
-        public static Matrix<double> CreateShearY(double x, double z)
+        public static MatrixOld CreateShearY(double x, double z)
         {
             var m = Create();
 
@@ -92,7 +92,7 @@ namespace Tracer
         /// <param name="x">Shear factor for the x-direction</param>
         /// <param name="y">Shear factor for the y-direction</param>
         /// <returns>The shearing matrix</returns>
-        public static Matrix<double> CreateShearZ(double x, double y)
+        public static MatrixOld CreateShearZ(double x, double y)
         {
             var m = Create();
 
@@ -111,7 +111,7 @@ namespace Tracer
         /// <param name="sy">Amount to scale in the y-direction</param>
         /// <param name="sz">Amount to scale in the z-direction</param>
         /// <returns>The scale matrix</returns>
-        public static Matrix<double> CreateScale(double sx, double sy, double sz)
+        public static MatrixOld CreateScale(double sx, double sy, double sz)
         {
             var m = Create();
 
@@ -126,7 +126,7 @@ namespace Tracer
         /// Returns the reflection matrix for reflecting about the origin.
         /// </summary>
         /// <returns>The reflection matrix</returns>
-        public static Matrix<double> CreateReflectOrigin()
+        public static MatrixOld CreateReflectOrigin()
         {
             var m = Create();
             
@@ -141,7 +141,7 @@ namespace Tracer
         /// Returns the reflection matrix for reflecting in the XY-plane.
         /// </summary>
         /// <returns>The reflection matrix</returns>
-        public static Matrix<double> CreateReflectXY()
+        public static MatrixOld CreateReflectXY()
         {
             var m = Create();
 
@@ -154,7 +154,7 @@ namespace Tracer
         /// Returns the reflection matrix for reflecting in the XZ-plane.
         /// </summary>
         /// <returns>The reflection matrix</returns>
-        public static Matrix<double> CreateReflectXZ()
+        public static MatrixOld CreateReflectXZ()
         {
             var m = Create();
 
@@ -167,7 +167,7 @@ namespace Tracer
         /// Returns the reflection matrix for reflecting in the YZ-plane.
         /// </summary>
         /// <returns>The reflection matrix</returns>
-        public static Matrix<double> CreateReflectYZ()
+        public static MatrixOld CreateReflectYZ()
         {
             var m = Create();
 
@@ -189,7 +189,7 @@ namespace Tracer
         /// <param name="y">The y coordinate of point determining the rotation axis</param>
         /// <param name="z">The z coordinate of point determining the rotation axis</param>
         /// <returns>The rotation matrix</returns>
-        public static Matrix<double> CreateRotationSC(double s, double c, double x, double y, double z)
+        public static MatrixOld CreateRotationSC(double s, double c, double x, double y, double z)
         {
             var m = Create();
             double oneMinusC = 1 - c;
@@ -218,7 +218,7 @@ namespace Tracer
         /// <param name="y">The y coordinate of point determining the rotation axis</param>
         /// <param name="z">The z coordinate of point determining the rotation axis</param>
         /// <returns>The rotation matrix</returns>
-        public static Matrix<double> CreateRotation(double theta, double x, double y, double z)
+        public static MatrixOld CreateRotation(double theta, double x, double y, double z)
             => CreateRotationSC(Math.Sin(theta), Math.Cos(theta), x, y, z);
 
         /// <summary>
@@ -232,78 +232,63 @@ namespace Tracer
         /// <param name="y">The y coordinate of point determining the rotation axis</param>
         /// <param name="z">The z coordinate of point determining the rotation axis</param>
         /// <returns>The rotation matrix</returns>
-        public static Matrix<double> CreateRotationDeg(double deg, double x, double y, double z)
-            => CreateRotation(Trig.DegreeToRadian(deg), x, y, z);
+        public static MatrixOld CreateRotationDeg(double deg, double x, double y, double z)
+            => CreateRotation(MathNet.Numerics.Trig.DegreeToRadian(deg), x, y, z);
 
-        public static Matrix<double> Translate(this Matrix<double> m, double tx, double ty, double tz)
+        public static Matrix4x4 Translate(this Matrix4x4 m, float tx, float ty, float tz)
         {
-            m[0,3] += tx;
-            m[1,3] += ty;
-            m[2,3] += tz;
+            m.M14 += tx;
+            m.M24 += ty;
+            m.M34 += tz;
             return m;
         }
+            // => new System.Numerics.Matrix4x4(
+            //     m.M11, m.M12, m.M13, m.M14 + tx,
+            //     m.M21, m.M22, m.M23, m.M24 + ty,
+            //     m.M31, m.M32, m.M33, m.M34 + tz,
+            //     m.M41, m.M42, m.M43, m.M44
+            // );
 
-        public static Matrix<double> Scale(this Matrix<double> m, double sx, double sy, double sz)
+        public static MatrixOld Scale(this MatrixOld m, double sx, double sy, double sz)
             => m.Multiply(CreateScale(sx, sy, sz));
 
-        public static Matrix<double> RotateSC(this Matrix<double> m, double s, double c, double x, double y, double z)
+        public static MatrixOld RotateSC(this MatrixOld m, double s, double c, double x, double y, double z)
             => m.Multiply(CreateRotationSC(s, c, x, y, z));
 
-        public static Matrix<double> Rotate(this Matrix<double> m, double theta, double x, double y, double z)
+        public static MatrixOld Rotate(this MatrixOld m, double theta, double x, double y, double z)
             => m.Multiply(CreateRotation(theta, x, y, z));
 
-        public static Matrix<double> RotateDeg(this Matrix<double> m, double deg, double x, double y, double z)
+        public static MatrixOld RotateDeg(this MatrixOld m, double deg, double x, double y, double z)
             => m.Multiply(CreateRotationDeg(deg, x, y, z));
 
-        public static Matrix<double> ReflectOrigin(this Matrix<double> m)
+        public static MatrixOld ReflectOrigin(this MatrixOld m)
             => m.Multiply(CreateReflectOrigin());
 
-        public static Matrix<double> ReflectXY(this Matrix<double> m)
+        public static MatrixOld ReflectXY(this MatrixOld m)
             => m.Multiply(CreateReflectXY());
         
-        public static Matrix<double> ReflectXZ(this Matrix<double> m)
+        public static MatrixOld ReflectXZ(this MatrixOld m)
             => m.Multiply(CreateReflectXZ());
 
-        public static Matrix<double> ReflectYZ(this Matrix<double> m)
+        public static MatrixOld ReflectYZ(this MatrixOld m)
             => m.Multiply(CreateReflectYZ());
 
-        public static Matrix<double> ShearX(this Matrix<double> m, double y, double z)
+        public static MatrixOld ShearX(this MatrixOld m, double y, double z)
             => m.Multiply(CreateShearX(y, z));
 
-        public static Matrix<double> ShearY(this Matrix<double> m, double x, double z)
+        public static MatrixOld ShearY(this MatrixOld m, double x, double z)
             => m.Multiply(CreateShearY(x, z));
 
-        public static Matrix<double> ShearZ(this Matrix<double> m, double x, double y)
+        public static MatrixOld ShearZ(this MatrixOld m, double x, double y)
             => m.Multiply(CreateShearZ(x, y));
 
-        public static Vector<double> Image(this Matrix<double> m, Vector<double> vector)
+        public static Vector3 Image(this Matrix4x4 m, Vector3 v)
         {
-            var result = Vector<double>.Build.Dense(3);
-
-            for (var i = 0; i < 3; i++)
-            {
-                result[i] = 0;
-                for (var j = 0; j < 3; j++)
-                {
-                    result[i] += m[i,j] * vector[j];
-                }
-                result[i] += m[i,3];
-            }
-            return result;
-        }
-
-        public static Matrix<double> Multiply(Matrix<double> m1, Matrix<double> m2)
-        {
-            var m = Matrix.Create();
-
-            for (int i = 0; i < 4; i++)
-                for (int j = 0; j < 4; j++)
-                {
-                    m[i,j] = 0;
-                    for (int k = 0; k < 4; k++)
-                        m[i,j] += m1[i,k] * m2[k,j];
-                }
-            return m;
+            return new Vector3(
+                (m.M11 * v.X) + (m.M12 * v.Y) + (m.M13 * v.Z) + m.M14,
+                (m.M21 * v.X) + (m.M22 * v.Y) + (m.M23 * v.Z) + m.M24,
+                (m.M31 * v.X) + (m.M32 * v.Y) + (m.M33 * v.Z) + m.M34
+            );
         }
     }
 }

@@ -1,20 +1,21 @@
 using System;
-using MathNet.Numerics.LinearAlgebra;
+using System.Numerics;
+using MatrixOld = MathNet.Numerics.LinearAlgebra.Matrix<double>;
 
 namespace Tracer
 {    
     public class MatrixPair
     {
-        private Matrix<double> _origin;
-        private Matrix<double> _inverse;
+        private Matrix4x4 _origin;
+        private Matrix4x4 _inverse;
 
         /// <summary>
         /// Initializes a new matrix pair to the identity.
         /// </summary>
         public MatrixPair()
         {
-            _origin = Matrix.Create();
-            _inverse = Matrix.Create();
+            _origin = Matrix4x4.Identity;
+            _inverse = Matrix4x4.Identity;
         }
 
         /// <summary>
@@ -22,7 +23,7 @@ namespace Tracer
         /// </summary>
         /// <param name="origin">The original matrix</param>
         /// <param name="inverse">The inverse of the original matrix</param>
-        public MatrixPair(Matrix<double> origin, Matrix<double> inverse)
+        public MatrixPair(Matrix4x4 origin, Matrix4x4 inverse)
         {
             _origin = origin;
             _inverse = inverse;
@@ -37,8 +38,11 @@ namespace Tracer
         /// <param name="tx">Amount to translate in the x-direction</param>
         /// <param name="ty">Amount to translate in the y-direction</param>
         /// <param name="tz">Amount to translate in the z-direction</param>
-        public void Translate(double tx, double ty, double tz)
-            => Apply(m => m.Translate(tx, ty, tz));
+        public void Translate(float tx, float ty, float tz)
+        {
+            _origin = _origin.Translate(tx, ty, tz);
+            _inverse = _inverse.Translate(tx, ty, tz);
+        }
 
         /// <summary>
         /// Scales the current matrix by sx units in the x-direction,
@@ -49,8 +53,8 @@ namespace Tracer
         /// <param name="sx">Amount to scale in the x-direction</param>
         /// <param name="sy">Amount to scale in the y-direction</param>
         /// <param name="sz">Amount to scale in the z-direction</param>
-        public void Scale(double sx, double sy, double sz)
-            => Apply(m => m.Scale(sx, sy, sz));
+        // public void Scale(double sx, double sy, double sz)
+        //     => Apply(m => m.Scale(sx, sy, sz));
 
         /// <summary>
         /// Rotates the current matrix about the line from the
@@ -65,8 +69,8 @@ namespace Tracer
         /// <param name="x">Coordinate of x point determining the rotation axis</param>
         /// <param name="y">Coordinate of y point determining the rotation axis</param>
         /// <param name="z">Coordinate of z point determining the rotation axis</param>
-        public void RotateSC(double s, double c, double x, double y, double z)
-            => Apply(m => m.RotateSC(s, c, x, y, z));
+        // public void RotateSC(double s, double c, double x, double y, double z)
+        //     => Apply(m => m.RotateSC(s, c, x, y, z));
 
         /// <summary>
         /// Rotates the current matrix about the line from the
@@ -79,8 +83,8 @@ namespace Tracer
         /// <param name="x">Coordinate of x point determining the rotation axis</param>
         /// <param name="y">Coordinate of y point determining the rotation axis</param>
         /// <param name="z">Coordinate of z point determining the rotation axis</param>
-        public void Rotate(double theta, double x, double y, double z)
-            => Apply(m => m.Rotate(theta, x, y, z));
+        // public void Rotate(double theta, double x, double y, double z)
+        //     => Apply(m => m.Rotate(theta, x, y, z));
 
         /// <summary>
         /// Rotates the current matrix about the line from the
@@ -93,36 +97,36 @@ namespace Tracer
         /// <param name="x">Coordinate of x point determining the rotation axis</param>
         /// <param name="y">Coordinate of y point determining the rotation axis</param>
         /// <param name="z">Coordinate of z point determining the rotation axis</param>
-        public void RotateDeg(double deg, double x, double y, double z)
-            => Apply(m => m.RotateDeg(deg, x, y, z));
+        // public void RotateDeg(double deg, double x, double y, double z)
+        //     => Apply(m => m.RotateDeg(deg, x, y, z));
 
         /// <summary>
         /// Reflects the current matrix about the XY-plane.
         /// Keeps the inverse in sync.
         /// </summary>
-        public void ReflectXY()
-            => Apply(m => m.ReflectXY());
+        // public void ReflectXY()
+        //     => Apply(m => m.ReflectXY());
 
         /// <summary>
         /// Reflects the current matrix about the XZ-plane.
         /// Keeps the inverse in sync.
         /// </summary>
-        public void ReflectXZ()
-            => Apply(m => m.ReflectXZ());
+        // public void ReflectXZ()
+        //     => Apply(m => m.ReflectXZ());
 
         /// <summary>
         /// Reflects the current matrix in the YZ-plane.
         /// Keeps the inverse in sync.
         /// </summary>
-        public void ReflectYZ()
-            => Apply(m => m.ReflectYZ());
+        // public void ReflectYZ()
+        //     => Apply(m => m.ReflectYZ());
 
         /// <summary>
         /// Reflects the current matrix about the origin.
         /// Keeps the inverse in sync.
         /// </summary>
-        public void ReflectOrigin()
-            => Apply(m => m.ReflectOrigin());
+        // public void ReflectOrigin()
+        //     => Apply(m => m.ReflectOrigin());
 
         /// <summary>
         /// Shears the current matrix by a factor of a in the y-direction and
@@ -137,8 +141,8 @@ namespace Tracer
         /// </summary>
         /// <param name="y">Shear factor for the y-direction</param>
         /// <param name="z">Shear factor for the z-direction</param>
-        public void ShearX(double y, double z)
-            => Apply(m => m.ShearX(y, z));
+        // public void ShearX(double y, double z)
+        //     => Apply(m => m.ShearX(y, z));
 
         /// <summary>
         /// Shears the current matrix by a factor of a in the x-direction and
@@ -153,8 +157,8 @@ namespace Tracer
         /// </summary>
         /// <param name="x">Shear factor for the x-direction</param>
         /// <param name="z">Shear factor for the z-direction</param>
-        public void ShearY(double x, double z)
-            => Apply(m => m.ShearY(x, z));
+        // public void ShearY(double x, double z)
+        //     => Apply(m => m.ShearY(x, z));
 
         /// <summary>
         /// Shears the current matrix by a factor of a in the x-direction and
@@ -169,8 +173,8 @@ namespace Tracer
         /// </summary>
         /// <param name="x">Shear factor for the x-direction</param>
         /// <param name="y">Shear factor for the y-direction</param>
-        public void ShearZ(double x, double y)
-            => Apply(m => m.ShearZ(x, y));
+        // public void ShearZ(double x, double y)
+        //     => Apply(m => m.ShearZ(x, y));
 
         /// <summary>
         /// Returns the result of applying the inverse of the
@@ -178,7 +182,7 @@ namespace Tracer
         /// </summary>
         /// <param name="vector">The vector whose image is desired</param>
         /// <returns>The inverse image of the vector under the current matrix</returns>
-        public Vector<double> InverseImage(Vector<double> vector)
+        public Vector3 InverseImage(Vector3 vector)
             => Inverse.Image(vector);
 
         /// <summary>
@@ -187,31 +191,23 @@ namespace Tracer
         /// </summary>
         /// <param name="vector">A normal vector to be transformed</param>
         /// <returns>The transformed normal</returns>
-        public Vector<double> TransformNormal(Vector<double> vector)
+        public Vector3 TransformNormal(Vector3 v)
         {
-            var result = Vector<double>.Build.Dense(3);
-
-            for (var i = 0; i < 3; i++)
-            {
-                result[i] = 0;
-
-                for (var j = 0; j < 3; j++)
-                {
-                    result[i] += Inverse[j,i] * vector[j];
-                }                
-            }
-
-            return result.Normalize();
+            return Vector3.Normalize(new Vector3(
+                (Inverse.M11 * v.X) + (Inverse.M12 * v.Y) + (Inverse.M13 * v.Z),
+                (Inverse.M21 * v.X) + (Inverse.M22 * v.Y) + (Inverse.M23 * v.Z),
+                (Inverse.M31 * v.X) + (Inverse.M32 * v.Y) + (Inverse.M33 * v.Z)
+            ));
         }
 
-        private void Apply(Func<Matrix<double>, Matrix<double>> fun)
+        private void Apply(Func<Matrix4x4, Matrix4x4> fun)
         {
             _origin = fun(_origin);
             _inverse = fun(_inverse);
         }
 
-        public Matrix<double> Origin => _origin;
-        public Matrix<double> Inverse => _inverse;
+        public Matrix4x4 Origin => _origin;
+        public Matrix4x4 Inverse => _inverse;
 
         /// <summary>
         /// Returns the product of the two input matrices,
@@ -224,8 +220,8 @@ namespace Tracer
         public static MatrixPair Multiply(MatrixPair m1, MatrixPair m2)
         {
             return new MatrixPair(
-                Matrix.Multiply(m1.Origin, m2.Origin),
-                Matrix.Multiply(m1.Inverse, m2.Inverse)
+                Matrix4x4.Multiply(m1.Origin, m2.Origin),
+                Matrix4x4.Multiply(m1.Inverse, m2.Inverse)
             );
         }
     }

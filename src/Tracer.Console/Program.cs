@@ -14,19 +14,20 @@ namespace Tracer
         static void Main(string[] args)
         {
             var sphere1 = new Sphere(
-                Color.LightGreen,
+                Color.LightCyan,
                 Color.White, 150)
             {
                 Name = "Yellow Sphere",
             };
-            sphere1.Model.Translate(-0.75, 0, 0.0);	
+            sphere1.Model.Translate(-0.75f, 0, 0.0f);	
+
             var sphere2 = new Sphere(
                 Color.Red,
                 Color.White, 150)
             {
                 Name = "Red Sphere",
             };
-            sphere2.Model.Translate(0.75, 0, 0);
+            sphere2.Model.Translate(0.75f, 0, 0);
 
             var scene = new Scene
             {
