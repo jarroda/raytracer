@@ -14,10 +14,10 @@ namespace Tracer
         static void Main(string[] args)
         {
             var sphere1 = new Sphere(
-                Color.LightCyan,
+                Color.Green,
                 Color.White, 150)
             {
-                Name = "Yellow Sphere",
+                Name = "Green Sphere",
             };
             sphere1.Model.Translate(-0.75f, 0, 0.0f);	
 
@@ -43,7 +43,7 @@ namespace Tracer
                 Objects = new List<Traceable> { sphere1, sphere2 },
             };
 
-            using (var outStream = File.OpenWrite("quack.png"))
+            using (var outStream = File.OpenWrite("rendered.png"))
             using (var image = new Image<Rgba32>(1000, 1000))
             {
                 scene.RenderTo(image);
