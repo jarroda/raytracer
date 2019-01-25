@@ -7,6 +7,7 @@ using System.Numerics;
 using System.Threading.Tasks;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using Tracer.Objects;
 
 namespace Tracer.ImageSharp
 {
@@ -17,6 +18,7 @@ namespace Tracer.ImageSharp
         {
             var v = new RectangleF(0, 0, image.Width, image.Height);
             var w = new RectangleF(-2.0f, 2.0f, 4.0f, 4.0f);
+            //var w = new RectangleF(-4.0f, 4.0f, 8.0f, 8.0f);
             var v2w = new ViewportToWindowTransform(w, v);
 
             var viewing = Viewing.ViewingTransform(
