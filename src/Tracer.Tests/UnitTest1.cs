@@ -18,6 +18,15 @@ namespace Tracer.Tests
             AssertMatrixEqual(m1, m2);
         }
 
+        [Fact]
+        public void Test3()
+        {
+            var v1 = new Vector3(1, 2, 3);
+            var f = 1.4f;
+            
+            Assert.Equal(v1 * f, Vector3.Multiply(v1, f));
+        }
+
         // [Fact]
         // public void Test2()
         // {

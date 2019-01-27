@@ -29,6 +29,6 @@ namespace Tracer
         }
 
         public Vector3 PointAt(float t)
-            => Origin + Vector3.Multiply(Direction, t);
+            => Origin + (Direction * t);
     }
 }
