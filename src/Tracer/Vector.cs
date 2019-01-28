@@ -17,8 +17,6 @@ namespace Tracer
         /// <returns>The magnitude of the input vector.</returns>
         public static float Magnitude(this Vector3 vector)
             => (float)Math.Sqrt(vector.MagnitudeSquared());
-        public static double Magnitude(this VectorOld vector)
-            => Math.Sqrt(vector.Sum(v => v * v));
         
 
         /// <summary>
@@ -30,19 +28,6 @@ namespace Tracer
             => (vector.X * vector.X) + (vector.Y * vector.Y) + (vector.Z * vector.Z);
 
         /// <summary>
-        /// Returns the normalized version of the input vector.
-        /// </summary>
-        /// <param name="vector">The vector whose normalized version is desired.</param>
-        /// <returns>The normalized version of the input vector</returns>
-        public static VectorOld Normalize(this VectorOld vector)
-        {
-            var m = vector.Magnitude();
-            return VectorOld.Build.DenseOfEnumerable(
-                vector.Select(v => v / m)
-            );
-        }
-
-        /// <summary>
         /// Clamps the entires of the current vector to the range 0 - 1
         /// </summary>
         /// <param name="vector">The vector to clamp</param>
@@ -52,5 +37,8 @@ namespace Tracer
                 vector.Y > 1 ? 1 : (vector.Y < 0 ? 0 : vector.Y),
                 vector.Z > 1 ? 1 : (vector.Z < 0 ? 0 : vector.Z)
             );
+
+        public static Vector3 UnitVector(this Vector3 vector)
+            => vector / vector.Length();
     }
 }
