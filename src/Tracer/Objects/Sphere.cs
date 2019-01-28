@@ -20,9 +20,9 @@ namespace Tracer.Objects
             var localRay = GetLocalRay(ray);
 
             return Util.SolveQuadraticPositive(
-                localRay.Direction.MagnitudeSquared(),
+                localRay.Direction.LengthSquared(),
                 2 * Vector3.Dot(localRay.Origin, localRay.Direction),
-                localRay.Origin.MagnitudeSquared() - 1
+                localRay.Origin.LengthSquared() - 1
             );
         }
 

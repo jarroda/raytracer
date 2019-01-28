@@ -183,10 +183,5 @@ namespace Tracer
                 }
             }
         }
-        public static MathNet.Numerics.LinearAlgebra.Vector<double> ToVector(this Vector3 vector)
-            => Vector.CreateVector3(vector.X, vector.Y, vector.Z);
-
-        public static Vector3 ToVector(this MathNet.Numerics.LinearAlgebra.Vector<double> vector)
-            => new Vector3((float)vector[0], (float)vector[1], (float)vector[2]);
     }
 }

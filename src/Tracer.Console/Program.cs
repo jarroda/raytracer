@@ -14,16 +14,20 @@ namespace Tracer
 {
     class Program
     {
+        static Random rand = new Random();
+
         static void Main(string[] args)
         {
-            int x = 200;
-            int y = 100;
+            int nx = 800;
+            int ny = 400;
+            int ns = 100;
             
             var lower_left = new Vector3(-2.0f, -1.0f, -1.0f);
             var horizontal = new Vector3(4.0f, 0.0f, 0.0f);
             var vertical = new Vector3(0.0f, 2.0f, 0.0f);
             var origin = new Vector3(0.0f, 0.0f, 0.0f);
-            var image = new PpmImage(x, y);
+            var image = new PpmImage(nx, ny);
+            var camera = Camera.Default;
 
             var traceables = new Traceable[]
             {
@@ -32,35 +36,50 @@ namespace Tracer
             };
 
             var outStream = File.OpenWrite("rendered.ppm");
-            var writer = new StreamWriter(outStream);
-                writer.WriteLine("P3");
-                writer.WriteLine($"{x} {y}");
-                writer.WriteLine("255");
+            Vector3 c;
+            Ray ray;
 
-                Color color;
-                Ray ray;
-
-                for (int j = y-1; j >= 0; j--)
-                for (int i = 0; i < x; i++)
+            for (int j = ny-1; j >= 0; j--)
+            for (int i = 0; i < nx; i++)
+            {
+                c = new Vector3();
+                
+                for (int s = 0; s < ns; s++)
                 {
-                    var u = (float)i / x;
-                    var v = (float)j / y;
+                    var u = (float)(i + rand.NextDouble()) / nx;
+                    var v = (float)(j + rand.NextDouble()) / ny;
 
-                    ray = Ray.Create(origin, lower_left + u * horizontal + v * vertical);
-                    color = Col(ray, traceables).ToColor();
-                    writer.WriteLine($"{color.R} {color.G} {color.B}");
+                    ray = camera.GetRay(u, v);
+                    var p = ray.PointAt(2.0f);
+                    c += Col(ray, traceables);
                 }
-                // image.GammaCorrect(1.8f);
-                image.Save(outStream).Wait();
+
+                image.Set(i, j, c / ns);
+            }
+            image.GammaCorrect(2);
+            image.Save(outStream).Wait();
+        }
+
+        static Vector3 RandomInUnitSphere()
+        {
+            Vector3 p;
+            do
+            {
+                p = 2.0f * new Vector3((float)rand.NextDouble(), (float)rand.NextDouble(), (float)rand.NextDouble()) - new Vector3(1, 1, 1);                
+            }
+            while (p.LengthSquared() > 1.0f);
+            
+            return p;
         }
 
         static Vector3 Col(Ray r, IEnumerable<Traceable> traceables)
         {
             HitRecord hit;
 
-            if (Hit(traceables, r, 0.0f, float.MaxValue, out hit))
+            if (Hit(traceables, r, 0.001f, float.MaxValue, out hit))
             {
-                return 0.5f * new Vector3(hit.Normal.X + 1, hit.Normal.Y + 1, hit.Normal.Z + 1);
+                var target = hit.Position + hit.Normal + RandomInUnitSphere();
+                return 0.5f * Col(Ray.Create(hit.Position, target - hit.Position), traceables);// new Vector3(hit.Normal.X + 1, hit.Normal.Y + 1, hit.Normal.Z + 1);
             }
             else
             {
